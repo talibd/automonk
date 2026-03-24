@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Orange-dark theme ── */
+    --background:          220 14% 9%;
+    --foreground:          220 10% 96%;
+    --card:                220 13% 12%;
+    --card-foreground:     220 10% 96%;
+    --popover:             220 13% 13%;
+    --popover-foreground:  220 10% 96%;
+    --primary:             24 94% 53%;
+    --primary-foreground:  0 0% 100%;
+    --secondary:           220 13% 17%;
+    --secondary-foreground: 220 10% 96%;
+    --muted:               220 13% 17%;
+    --muted-foreground:    220 9% 50%;
+    --accent:              24 94% 53%;
+    --accent-foreground:   0 0% 100%;
+    --destructive:         0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border:              220 13% 20%;
+    --input:               220 13% 20%;
+    --ring:                24 94% 53%;
+    --radius:              0.75rem;
+
+    /* ── Status colours ── */
+    --status-success:     34 197 94;
+    --status-warning:     245 158 11;
+    --status-error:       239 68 68;
+    --status-info:        56 189 248;
+  }
+}
+
+@layer base {
+  * { @apply border-border; box-sizing: border-box; }
+  html, body, #root { height: 100%; margin: 0; padding: 0; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.3s ease-out both; }

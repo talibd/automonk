@@ -1,0 +1,648 @@
+================================================================================
+PRODUCT REQUIREMENTS DOCUMENT
+Multi-Platform Content Automation Platform
+================================================================================
+
+Version       : 4.1
+Status        : Draft
+Prepared by   : Talib
+Last updated  : March 2026
+
+
+────────────────────────────────────────────────────────────────────────────────
+1. OVERVIEW
+────────────────────────────────────────────────────────────────────────────────
+
+A fully autonomous, multi-client, multi-platform content automation platform
+that generates, renders, schedules, and publishes social media content across
+Instagram, Facebook, YouTube, LinkedIn, Twitter/X, and Threads — with zero
+daily human input required.
+
+The system runs entirely in the background. Content is created, adapted,
+rendered, and published automatically. The operator is only notified when
+something fails or needs attention. Every client is fully independent with
+their own settings, strategy, templates, and performance data.
+
+Two interfaces, minimal interaction:
+  - Telegram   : Passive alerts only (failures, token expiry, weekly report,
+                 performance drops). Manual delete and quick stats on demand.
+  - Dashboard  : Full visibility and control — settings, content, stats,
+                 strategy. Used when operator wants to intervene or review.
+
+
+────────────────────────────────────────────────────────────────────────────────
+2. PROBLEM STATEMENT
+────────────────────────────────────────────────────────────────────────────────
+
+Managing content across multiple platforms for multiple clients is manually
+impossible at scale. Each client has a different niche, brand, audience,
+posting rhythm, and platform mix. Content does not improve over time without
+a structured feedback loop between performance data and future content creation.
+
+This platform automates the full pipeline per client — idea to published post
+across all their platforms — with individual settings, a lightweight Telegram
+approval step, and a full management dashboard.
+
+
+────────────────────────────────────────────────────────────────────────────────
+3. GOALS
+────────────────────────────────────────────────────────────────────────────────
+
+  G1. Run the entire content pipeline — idea to published post — with zero
+      daily human input required.
+  G2. Every client is fully isolated — independent settings, strategy,
+      templates, platforms, and performance data.
+  G3. Operator controls all client settings individually from the dashboard.
+  G4. Automatically select the best content idea based on performance data
+      and topic variety. No manual topic picking.
+  G5. New clients run in supervised mode for 14 days, then switch to fully
+      autonomous auto-publish automatically.
+  G6. Repurpose one piece of content into platform-native formats automatically.
+  G7. Improve content quality week-over-week using cross-platform performance
+      data, per client, with no manual intervention.
+  G8. Surface only failures, expiries, and anomalies via Telegram.
+      Everything else runs silently.
+  G9. Give clients a read-only dashboard view of their own content and stats.
+
+
+────────────────────────────────────────────────────────────────────────────────
+4. NON-GOALS
+────────────────────────────────────────────────────────────────────────────────
+
+  - No AI-generated imagery. All visuals use branded HTML/CSS templates.
+  - No YouTube Shorts or long-form video at launch.
+  - No client access to Telegram. Telegram is operator-only.
+  - No real-time posting. All posts go through the scheduled queue.
+  - No paid ad management or boosting.
+  - Clients cannot change their own settings. Operator only.
+  - Telegram does not manage clients, scheduling, or settings.
+  - No manual topic selection. Ideas are picked automatically by the system.
+
+
+────────────────────────────────────────────────────────────────────────────────
+5. SUPPORTED PLATFORMS & CONTENT TYPES
+────────────────────────────────────────────────────────────────────────────────
+
+  Platform        Carousel    Static Image    Text Post    Multi-image
+  ──────────────────────────────────────────────────────────────────
+  Instagram       Yes         Yes             No           Yes (carousel)
+  Facebook        Yes         Yes             Yes          Yes (carousel)
+  YouTube         No          No              No           Manual only *
+  LinkedIn        Yes         Yes             Yes          Yes (carousel)
+  Twitter / X     No          Yes             Yes          No
+  Threads         No          Yes             Yes          No
+
+  * YouTube community posts support up to 10 images in the UI but the
+    official YouTube Data API v3 does not support creating community posts
+    programmatically. YouTube is handled manually by the operator at launch.
+    Full programmatic support will be added in a future phase when the
+    official API supports it.
+
+  Each client has their own platform mix. A client may be active on 2
+  platforms or all 6 — configured individually by the operator.
+
+  Content repurposing model:
+    One master script is created. Claude adapts it into variants only for
+    the platforms that client is configured to publish on.
+
+      Carousel (10 slides)       → Instagram, Facebook, LinkedIn
+      Hook + single image        → Twitter/X, Threads
+      Professional caption       → LinkedIn text post
+      Casual caption             → Threads text post
+      YouTube                    → Content package prepared, operator posts
+                                   manually via YouTube Studio
+
+  YouTube workflow (manual at launch):
+    - Claude adapts the master script into a YouTube community post:
+      hook headline + key takeaway, max 500 chars, YouTube-specific CTA
+    - All 10 slide PNGs are rendered and packaged
+    - Operator receives a Telegram notification when the YouTube package
+      is ready, with a link to the dashboard
+    - Dashboard shows the full package: adapted text + all 10 slide images
+      ready to copy and upload
+    - Operator posts manually in YouTube Studio (takes ~2 minutes)
+    - Once posted, operator marks it as posted in the dashboard
+    - YouTube stats (likes, comments, views) tracked manually or via
+      YouTube Analytics API once the post ID is entered
+
+
+────────────────────────────────────────────────────────────────────────────────
+6. USERS
+────────────────────────────────────────────────────────────────────────────────
+
+  Operator (you)
+    Full control of the entire platform via dashboard.
+    Uses Telegram only for approvals and quick stats.
+    The only person who can change any client's settings.
+
+  Client
+    Read-only dashboard access. Views their post performance, previews
+    content, and sees their publishing schedule. Cannot change settings.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7. INTERFACE RESPONSIBILITIES
+────────────────────────────────────────────────────────────────────────────────
+
+  Telegram (operator only — alerts and exceptions only)
+  ──────────────────────────────────────────────────────
+    Telegram is not a control interface. It is a passive alert system.
+    The platform runs fully in the background. Telegram only surfaces
+    when something needs attention.
+
+    Alerts sent to Telegram:
+      Post failed to publish   → which client, which platform, reason
+      Platform token expired   → which client, which platform, action needed
+      Weekly optimization      → brief summary, link to dashboard report
+      Performance drop         → unusual dip detected, link to dashboard
+
+    Manual actions still available via Telegram:
+      Delete posted post       → delete from all platforms or select individually
+      Quick stats              → on-demand 7-day summary for a client
+
+    Everything else is silent. Operator checks the dashboard when needed.
+
+  Dashboard — Operator view
+  ──────────────────────────
+    Full client management    → add, edit, configure, archive clients
+    Per-client settings       → all 9 settings individually per client
+    Content pipeline          → view ideas, scripts, variants, status
+    Scheduler                 → calendar, reschedule, cancel, post now
+    Stats                     → cross-platform charts, per-post breakdown
+    Carousel preview          → slide viewer with platform toggle
+    Manual creator            → build and schedule posts manually
+    Strategy viewer           → current and historical AI strategy per client
+    Platform connections      → connect / disconnect OAuth per client
+    Template manager          → upload and assign templates per client
+    Delete posted post        → delete from all platforms or pick platforms
+                                individually. Post record is kept in dashboard
+                                with status marked as "deleted" per platform.
+
+  Dashboard — Client view (read-only)
+  ─────────────────────────────────────
+    Post stats                → their own performance data only
+    Upcoming schedule         → what is queued and when
+    Carousel preview          → view their own past and upcoming posts
+    No settings access        → all configuration is operator-only
+
+
+────────────────────────────────────────────────────────────────────────────────
+8. PER-CLIENT SETTINGS
+────────────────────────────────────────────────────────────────────────────────
+
+  All settings below are configured independently per client by the operator.
+  Changing one client's settings has zero effect on any other client.
+
+  S-01  Active platforms
+          Which of the 6 platforms this client publishes to.
+          Can be toggled on/off per platform at any time.
+          Example: Client A → Instagram + LinkedIn + YouTube only
+                   Client B → All 6 platforms
+
+  S-02  Posting time per platform
+          Separate posting time for each active platform.
+          Overrides the optimized time from client_strategy if set manually.
+          Example: Instagram  → 7:00 PM IST
+                   LinkedIn   → 8:00 AM IST
+                   YouTube    → 10:00 AM IST
+                   Twitter/X  → 12:00 PM IST
+
+  S-03  Content niche and tone of voice
+          Niche           : Subject area (e.g. fitness, finance, skincare)
+          Tone            : How Claude writes (e.g. motivational, educational,
+                            professional, casual, humorous)
+          Target audience : Who the content is for
+          Used in every Claude prompt for this client.
+
+  S-04  Carousel template / branding
+          Per-client HTML/CSS template files, one per platform if needed.
+          Operator uploads templates via dashboard.
+          Puppeteer uses these to render slides for this client only.
+          YouTube uses the Slide 1 PNG as the community post image.
+
+  S-05  Hashtag sets
+          Custom hashtag groups per platform per client.
+          Claude appends the correct set to each platform's caption.
+          Can have multiple sets (primary, secondary, niche-specific).
+          YouTube community posts do not use hashtags.
+          Example: Instagram fitness client
+                   Set A: #fitness #workout #gym (broad reach)
+                   Set B: #biceps #chestday #pullday (niche)
+
+  S-06  CTA preferences
+          Preferred call-to-action per platform.
+          Claude uses this when writing Slide 10, captions, and community posts.
+          Example: Instagram  → "Save this for your next workout"
+                   LinkedIn   → "Follow for weekly training tips"
+                   YouTube    → "Comment your thoughts below"
+                   Twitter/X  → "Retweet if this helped"
+
+  S-07  Idea generation frequency
+          How often the idea generation and auto-publishing pipeline runs.
+          Options: Daily / Every 2 days / Weekly
+          The system selects the best idea automatically from the 3
+          generated options — based on topic variety, recency, and
+          client_strategy performance data. No human input required.
+          Operator can still override or trigger manually from dashboard.
+
+  S-08  Approval mode
+          Auto-publish : Default for all clients. Posts are generated,
+                         rendered, and published fully automatically with
+                         no human input required.
+          Supervised   : For new clients only, approval mode is set to
+                         supervised for the first 2 weeks. Every post is
+                         held in the dashboard for operator review before
+                         publishing. After 2 weeks, automatically switches
+                         to auto-publish.
+          Can be toggled per client at any time from the dashboard.
+          Default      : Supervised for first 14 days, then auto-publish.
+
+  S-09  Weekly optimization
+          On  : Claude fetches stats every Sunday and updates client_strategy.
+                All future content for this client is influenced by performance.
+          Off : No weekly analysis. Claude uses only the static client config
+                to generate content. Strategy document is not created or updated.
+
+
+────────────────────────────────────────────────────────────────────────────────
+9. SYSTEM ARCHITECTURE
+────────────────────────────────────────────────────────────────────────────────
+
+  Layer 1 — Telegram Bot
+    Built with   : Telegraf.js
+    Purpose      : Approval notifications and quick stats only
+    Receives     : Webhook from Node.js engine when post needs review
+    Sends back   : Approve / Reject / Improve to Node.js engine
+
+  Layer 2 — Node.js Engine (Core Backend)
+    Built with   : Node.js, Express, BullMQ, Claude API, Puppeteer
+    Handles      : Job queue, AI generation, rendering, publishing,
+                   stats fetching, strategy generation, per-client config
+
+  Layer 3 — Platform Adapters
+    One adapter per platform, each implementing:
+      adapter.publish(variant)         → posts content, returns post ID
+      adapter.fetchStats(postId)       → returns stats object
+      adapter.validateCredentials()    → checks token validity
+      adapter.refreshToken()           → refreshes expired token
+      adapter.formatContent(script)    → validates against platform limits
+
+    Adapters:
+      InstagramAdapter   (Meta Graph API)
+      FacebookAdapter    (Meta Graph API)
+      YouTubeAdapter     (YouTube Analytics API — stats only at launch;
+                          posting is manual via YouTube Studio)
+      LinkedInAdapter    (LinkedIn API v2)
+      TwitterAdapter     (Twitter API v2)
+      ThreadsAdapter     (Threads API)
+
+  Layer 4 — Data Layer
+    PostgreSQL  : clients, client_settings, platform_accounts, posts,
+                  post_variants, post_stats, schedules, client_strategy
+    Redis       : job queue state, session cache, Telegram state
+    Storage     : S3 or local filesystem for rendered PNG files
+
+  Layer 5 — Web Dashboard
+    Built with  : React + REST API
+    Auth        : JWT, role-based (operator vs client)
+    Operator    : Full access including all client settings
+    Client      : Read-only access to their own data only
+
+
+────────────────────────────────────────────────────────────────────────────────
+10. CONTENT PIPELINE
+────────────────────────────────────────────────────────────────────────────────
+
+  Step 1 — Idea generation (per client_settings.idea_frequency)
+    Cron fires based on each client's configured frequency.
+    Claude generates 3 ideas using client niche, tone, CTA prefs,
+    and client_strategy (if optimization is enabled for this client).
+
+  Step 2 — Automatic topic selection
+    System automatically selects the best idea from the 3 options based on:
+      - Topic variety (avoid repeating recent topics)
+      - Performance data from client_strategy (pick what works)
+      - Content calendar gaps (fill underserved days/platforms)
+    No human input required. All 3 ideas and the selected one are
+    visible in the dashboard for reference.
+
+  Step 3 — Master script generation
+    Claude writes 10-slide master script using client tone and CTA prefs.
+      Slide 1    : Hook headline
+      Slides 2–8 : Key points
+      Slide 9    : Summary / takeaway
+      Slide 10   : CTA (from client CTA preferences)
+
+  Step 4 — Platform adaptation
+    Claude adapts master script only for this client's active platforms.
+    Captions use the correct hashtag set per platform.
+    YouTube variant: hook + takeaway rewritten as community post text
+    (max 500 chars) + YouTube CTA. All 10 slide PNGs are packaged for
+    manual upload. No auto-posting for YouTube at launch.
+
+  Step 5 — Approval (based on client_settings.approval_mode)
+    If approval_mode = Supervised (new clients, first 14 days):
+      Post is held in dashboard. Operator reviews and approves or
+      rejects from the dashboard. No Telegram notification unless
+      the post has been pending for more than 12 hours (reminder sent).
+    If approval_mode = Auto-publish (default after 14 days):
+      Skip approval entirely. Move directly to rendering.
+      No notification sent unless something goes wrong.
+
+  Step 6 — Rendering
+    Puppeteer uses this client's configured template files.
+    Renders slides at correct dimensions per platform.
+    Slide 1 PNG is reused as the YouTube community post image.
+
+  Step 7 — Scheduling
+    BullMQ queues each platform variant at the posting time configured
+    for that client + platform (from client_settings.posting_times).
+
+  Step 8 — Publishing
+    Each platform adapter publishes the variant at scheduled time.
+    YouTube: operator is notified via Telegram that the package is ready.
+    Dashboard shows adapted text + all 10 PNGs for manual upload to
+    YouTube Studio. Operator marks as posted once done.
+
+  Step 9 — Confirmation
+    Telegram notification to operator on successful publish across all
+    active platforms. Full post view available in dashboard.
+
+
+────────────────────────────────────────────────────────────────────────────────
+11. WEEKLY OPTIMIZATION LOOP
+────────────────────────────────────────────────────────────────────────────────
+
+  Runs only for clients where client_settings.weekly_optimization = On.
+
+  Trigger        : Weekly cron, every Sunday night
+
+  Step 1 — Fetch stats
+    Each active platform adapter fetches stats for all posts past 7 days.
+      Instagram   : likes, comments, shares, saves, reach, impressions
+      Facebook    : likes, comments, shares, reach, impressions
+      YouTube     : likes, comments, views (via YouTube Analytics API
+                    using manually entered post ID)
+      LinkedIn    : impressions, clicks, likes, comments, shares
+      Twitter/X   : impressions, likes, retweets, replies, link clicks
+      Threads     : likes, replies, reposts, views
+
+  Step 2 — Store stats
+    All stats written to post_stats table tagged by client and platform.
+
+  Step 3 — Claude analysis (per client, independent)
+    Claude receives this client's cross-platform performance data and
+    produces a strategy covering:
+      - Top performing topics per platform
+      - Hook styles that worked vs did not
+      - CTA phrases that drove best actions
+      - Best performing tone and script length
+      - Best posting time window per platform
+      - Platform growth comparison
+      - Performance anomaly detection: if any platform shows a significant
+        drop (>30% reach decrease week-over-week), flag it for Telegram alert
+
+  Step 4 — Save strategy
+    Versioned client_strategy record saved to PostgreSQL.
+    Injected into all future Claude prompts for this client.
+    Does not affect any other client's strategy.
+
+  Step 5 — Telegram summary
+    Brief weekly message to operator:
+      - Best post of the week and platform
+      - One key strategy shift for next week
+      - Link to full report in dashboard
+
+
+────────────────────────────────────────────────────────────────────────────────
+12. DELETE POSTED POST
+────────────────────────────────────────────────────────────────────────────────
+
+  Available from both Telegram and dashboard. Operator only.
+
+  Delete options:
+    Delete from all platforms   : Removes the post from every platform it
+                                  was published to in one action.
+    Delete from select platforms: Operator picks which platforms to remove
+                                  the post from. Useful when a post performs
+                                  well on one platform but needs to come down
+                                  from another.
+
+  What happens on delete:
+    - Platform adapter calls the delete/unpublish endpoint for each selected
+      platform using the stored platform_post_id.
+    - post_variants.status updated to "deleted" per platform.
+    - post_variants.deleted_at timestamp recorded.
+    - Post record and all stats collected before deletion are retained in
+      the dashboard for reference and optimization history.
+    - Stats collected after deletion are no longer fetched for that variant.
+    - Dashboard shows deleted posts with a "deleted" badge per platform.
+      Historical stats remain visible.
+
+  Telegram delete flow:
+    - Operator sends /delete [post_id] or selects delete from a post
+      notification message.
+    - Bot replies with platform selection buttons:
+        [Delete from all]  [Instagram]  [Facebook]  [LinkedIn]
+        [Twitter/X]  [Threads]
+    - Operator taps one or more platforms then confirms.
+    - Bot confirms deletion per platform with success or error per adapter.
+
+  Dashboard delete flow:
+    - Operator opens any posted post in the dashboard.
+    - Clicks "Delete post" button.
+    - Modal shows checkboxes for each platform the post is live on.
+      All platforms checked by default.
+    - Operator unchecks any platforms to keep, confirms deletion.
+    - Dashboard updates status badges in real time.
+
+  YouTube note:
+    - Since YouTube posting is manual, deletion is also manual.
+    - Operator deletes from YouTube Studio directly.
+    - Dashboard has a "Mark as deleted on YouTube" button to update
+      the record without an API call.
+
+  Platform delete API support:
+    Instagram    : DELETE /media/{media_id} via Graph API
+    Facebook     : DELETE /{post_id} via Graph API
+    LinkedIn     : DELETE /ugcPosts/{post_id} via LinkedIn API
+    Twitter/X    : DELETE /tweets/{id} via Twitter API v2
+    Threads      : DELETE /{post_id} via Threads API
+    YouTube      : Manual — operator deletes in YouTube Studio
+
+
+────────────────────────────────────────────────────────────────────────────────
+13. DATABASE SCHEMA (HIGH LEVEL)
+────────────────────────────────────────────────────────────────────────────────
+
+  clients
+    id, name, created_at, archived
+
+  client_settings
+    id, client_id,
+    active_platforms (array),
+    niche, tone_of_voice, target_audience,
+    hashtag_sets (json),
+    cta_preferences (json, per platform),
+    idea_frequency (daily/every2days/weekly/manual),
+    approval_mode (required/auto),
+    weekly_optimization (boolean),
+    posting_times (json, per platform),
+    updated_at
+
+  platform_accounts
+    id, client_id, platform, account_id, access_token,
+    token_expiry, template_path, active
+
+  posts
+    id, client_id, master_script_json, status, created_at
+
+  post_variants
+    id, post_id, client_id, platform, content_type,
+    adapted_script_json, storage_path,
+    status (draft/pending/approved/scheduled/posted/failed/deleted),
+    scheduled_at, posted_at, deleted_at, platform_post_id
+
+  post_stats
+    id, post_variant_id, client_id, platform, likes, comments,
+    shares, saves, reach, impressions, clicks, views, fetched_at
+
+  client_strategy
+    id, client_id, version, strategy_json, created_at
+
+  schedules
+    id, client_id, post_variant_id, scheduled_at, status, bull_job_id
+
+
+────────────────────────────────────────────────────────────────────────────────
+14. PLATFORM LIMITS REFERENCE
+────────────────────────────────────────────────────────────────────────────────
+
+  Platform      Content type           Text limit      Image dimensions
+  ──────────────────────────────────────────────────────────────────────
+  Instagram     Carousel               2,200 chars     1080×1080px
+  Facebook      Carousel               63,206 chars    1080×1080px
+  YouTube       Community (manual)     500 chars       1080×1080px (all 10)
+  LinkedIn      Carousel               3,000 chars     1200×628px
+  Twitter/X     Image + text           280 chars       1200×675px
+  Threads       Image + text           500 chars       1080×1080px
+
+  Hashtags:
+    Instagram   30 max
+    LinkedIn    None recommended
+    YouTube     Not used in community posts
+    Twitter/X   2–3 max
+    Threads     None
+
+
+────────────────────────────────────────────────────────────────────────────────
+15. TECH STACK
+────────────────────────────────────────────────────────────────────────────────
+
+  Runtime            Node.js (v20+)
+  Framework          Express.js
+  Telegram bot       Telegraf.js (alerts only)
+  Job queue          BullMQ + Redis
+  AI                 Anthropic Claude API (claude-sonnet-4-6)
+  Renderer           Puppeteer (headless Chrome)
+  Database           PostgreSQL
+  Cache / state      Redis
+  File storage       minio storage
+  Dashboard          React + REST API
+  Auth               JWT, role-based (operator / client)
+  Containerisation   Docker + Docker Compose
+  Hosting            VPS (Docker-based deployment)
+
+  Docker services (docker-compose.yml):
+    app              : Node.js backend + Express API
+    worker           : BullMQ worker (job processing, rendering, publishing)
+    bot              : Telegraf Telegram bot process
+    dashboard        : React frontend (served via Nginx)
+    postgres         : PostgreSQL database
+    redis            : Redis (job queue + session cache)
+    puppeteer        : Headless Chrome renderer (separate container for
+                       isolation and memory control)
+
+  Each service runs in its own container. All services communicate over
+  an internal Docker network. Only the dashboard and API are exposed
+  externally via reverse proxy (Nginx or Caddy).
+
+  Platform APIs
+    Instagram + Facebook    Meta Graph API
+    YouTube                 YouTube Analytics API v2 (stats only at launch)
+    LinkedIn                LinkedIn API v2
+    Twitter / X             Twitter API v2
+    Threads                 Threads API
+
+
+────────────────────────────────────────────────────────────────────────────────
+16. BUILD ORDER (PHASES)
+────────────────────────────────────────────────────────────────────────────────
+
+  Phase 1 — Core pipeline (Instagram, single client)
+    - Project scaffold, folder structure, package.json
+    - PostgreSQL schema including client_settings table
+    - Claude API: idea gen + script + adaptation
+    - Puppeteer renderer: HTML/CSS → PNGs
+    - InstagramAdapter: post carousel + fetch stats
+    - BullMQ scheduler
+    - Telegram bot: approval flow only
+
+  Phase 2 — All platforms, single client
+    - Platform adapter interface
+    - FacebookAdapter, YouTubeAdapter, LinkedInAdapter,
+      TwitterAdapter, ThreadsAdapter
+    - YouTubeAdapter: content package builder (adapted text + all 10 PNGs),
+      manual post notification, stats via YouTube Analytics API
+    - Per-platform Claude adaptation using client_settings
+    - Per-platform hashtags and CTAs from client_settings
+    - Multi-platform scheduling and confirmation
+
+  Phase 3 — Multi-client + full settings control
+    - Multi-client data model
+    - Full client_settings implementation (all 9 settings)
+    - Per-client approval mode (required vs auto-publish)
+    - Per-client idea generation frequency cron
+    - Per-client template management
+    - Per-client platform toggling
+
+  Phase 4 — Optimization loop
+    - Weekly stats fetch from all 6 adapters
+      (only for clients with optimization on)
+    - Claude per-client strategy analysis
+    - Versioned client_strategy storage and injection
+    - Weekly Telegram summary
+
+  Phase 5 — Web dashboard
+    - REST API layer
+    - JWT auth with operator and client roles
+    - Operator: full client settings UI (all 9 settings per client)
+    - Operator: content pipeline, scheduler, stats, strategy viewer
+    - Client: read-only stats, schedule, and preview
+    - Template upload and management
+    - Platform OAuth connection flow
+
+
+────────────────────────────────────────────────────────────────────────────────
+17. SUCCESS METRICS
+────────────────────────────────────────────────────────────────────────────────
+
+  - Entire content pipeline runs with zero daily operator input
+  - Average reach per post increases week-over-week per client per platform
+  - Time from idea auto-selection to published post across all platforms
+    under 15 minutes
+  - New clients automatically switch from supervised to auto-publish
+    after exactly 14 days with no manual action required
+  - Operator receives Telegram alerts only for failures, token expiry,
+    performance drops, and weekly report — nothing else
+  - Operator can manage 10+ clients independently with zero config bleed
+    between clients
+  - Each client's strategy evolves independently based on their own data
+  - Zero failed posts due to system errors in any given week
+  - Operator can change any client setting and see it reflected in the
+    next content generation cycle
+
+
+────────────────────────────────────────────────────────────────────────────────
+END OF DOCUMENT
+================================================================================

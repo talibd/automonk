@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(npm run:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(pkill -f localtunnel)",
+      "Bash(pkill -f \"lt --port\")"
+    ]
+  }
+}

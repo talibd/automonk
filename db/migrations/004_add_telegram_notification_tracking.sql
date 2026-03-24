@@ -1,0 +1,2 @@
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS telegram_notified_at TIMESTAMPTZ;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS telegram_message_id INTEGER;
