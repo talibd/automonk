@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   app:
     build:
@@ -15,6 +13,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      minio:
+        condition: service_started
     volumes:
       - ./src:/app/src
       - ./templates:/app/templates
@@ -33,6 +33,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      minio:
+        condition: service_started
     volumes:
       - ./src:/app/src
       - ./templates:/app/templates
