@@ -25,6 +25,7 @@ function resolveHost(host) {
   const localHostMap = {
     postgres: '127.0.0.1',
     redis: '127.0.0.1',
+    storage: '127.0.0.1',
     minio: '127.0.0.1',
   };
 
@@ -70,13 +71,13 @@ module.exports = {
     expires_in: process.env.JWT_EXPIRES_IN || '7d',
   },
 
-  minio: {
-    endpoint: resolveHost(process.env.MINIO_ENDPOINT || 'minio'),
-    port: parseInt(process.env.MINIO_PORT || '9000', 10),
-    access_key: process.env.MINIO_ACCESS_KEY,
-    secret_key: process.env.MINIO_SECRET_KEY,
-    bucket: process.env.MINIO_BUCKET || 'automonk',
-    use_ssl: process.env.MINIO_USE_SSL === 'true',
+  storage: {
+    endpoint: resolveHost(process.env.STORAGE_ENDPOINT || process.env.MINIO_ENDPOINT || 'storage'),
+    port: parseInt(process.env.STORAGE_PORT || process.env.MINIO_PORT || '9000', 10),
+    access_key: process.env.STORAGE_ACCESS_KEY || process.env.MINIO_ACCESS_KEY,
+    secret_key: process.env.STORAGE_SECRET_KEY || process.env.MINIO_SECRET_KEY,
+    bucket: process.env.STORAGE_BUCKET || process.env.MINIO_BUCKET || 'automonk',
+    use_ssl: (process.env.STORAGE_USE_SSL || process.env.MINIO_USE_SSL || 'false') === 'true',
   },
 
   // OAuth 2.0 credentials — all optional; missing values disable OAuth for that platform

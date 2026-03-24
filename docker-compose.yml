@@ -13,7 +13,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
+      storage:
         condition: service_started
     volumes:
       - ./src:/app/src
@@ -33,7 +33,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
+      storage:
         condition: service_started
     volumes:
       - ./src:/app/src
@@ -99,26 +99,29 @@ services:
     networks:
       - automonk
 
-  minio:
+  storage:
     image: minio/minio:latest
-    container_name: automonk-minio
+    container_name: automonk-storage
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY:-minioadmin}
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_data:/data
+      - storage_data:/data
     networks:
-      - automonk
+      automonk:
+        aliases:
+          - storage
+          - minio
 
 volumes:
   postgres_data:
   redis_data:
-  minio_data:
+  storage_data:
 
 networks:
   automonk:

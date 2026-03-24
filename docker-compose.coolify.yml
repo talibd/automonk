@@ -21,12 +21,12 @@ services:
       TELEGRAM_OPERATOR_CHAT_ID: ${TELEGRAM_OPERATOR_CHAT_ID}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio}
-      MINIO_PORT: ${MINIO_PORT:-9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_BUCKET: ${MINIO_BUCKET:-automonk}
-      MINIO_USE_SSL: ${MINIO_USE_SSL:-false}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
+      STORAGE_PORT: ${STORAGE_PORT:-8333}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-automonk}
+      STORAGE_USE_SSL: ${STORAGE_USE_SSL:-false}
       IG_APP_ID: ${IG_APP_ID:-}
       IG_APP_SECRET: ${IG_APP_SECRET:-}
       META_APP_ID: ${META_APP_ID:-}
@@ -52,8 +52,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
-        condition: service_started
     expose:
       - "3000"
 
@@ -78,12 +76,12 @@ services:
       TELEGRAM_OPERATOR_CHAT_ID: ${TELEGRAM_OPERATOR_CHAT_ID}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio}
-      MINIO_PORT: ${MINIO_PORT:-9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_BUCKET: ${MINIO_BUCKET:-automonk}
-      MINIO_USE_SSL: ${MINIO_USE_SSL:-false}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
+      STORAGE_PORT: ${STORAGE_PORT:-8333}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-automonk}
+      STORAGE_USE_SSL: ${STORAGE_USE_SSL:-false}
       IG_APP_ID: ${IG_APP_ID:-}
       IG_APP_SECRET: ${IG_APP_SECRET:-}
       META_APP_ID: ${META_APP_ID:-}
@@ -100,9 +98,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
-        condition: service_started
-
   bot:
     build:
       context: .
@@ -125,12 +120,12 @@ services:
       TELEGRAM_OPERATOR_CHAT_ID: ${TELEGRAM_OPERATOR_CHAT_ID}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio}
-      MINIO_PORT: ${MINIO_PORT:-9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_BUCKET: ${MINIO_BUCKET:-automonk}
-      MINIO_USE_SSL: ${MINIO_USE_SSL:-false}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
+      STORAGE_PORT: ${STORAGE_PORT:-8333}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-automonk}
+      STORAGE_USE_SSL: ${STORAGE_USE_SSL:-false}
       IG_APP_ID: ${IG_APP_ID:-}
       IG_APP_SECRET: ${IG_APP_SECRET:-}
       META_APP_ID: ${META_APP_ID:-}
@@ -176,17 +171,6 @@ services:
       timeout: 3s
       retries: 10
 
-  minio:
-    image: minio/minio:latest
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
-    volumes:
-      - minio_data:/data
-
 volumes:
   postgres_data:
   redis_data:
-  minio_data:

@@ -17,7 +17,8 @@ Use `docker-compose.coolify.yml` as the deployment file in Coolify.
 ## Notes
 
 - The `app` image now builds the dashboard during deployment, so `dashboard/dist` does not need to be committed.
-- `worker`, `bot`, `postgres`, `redis`, and `minio` stay internal to the stack.
+- `worker`, `bot`, `postgres`, and `redis` stay internal to the stack.
+- Object storage is external and should point at SeaweedFS through the `STORAGE_*` variables.
 - Set `APP_URL` to your real Coolify domain, for example `https://automonk.example.com`.
 - Update OAuth callback URLs after deploy:
   - `https://your-domain.com/auth/instagram/callback`

@@ -1,7 +1,7 @@
 require('./config/env');
 const logger = require('./utils/logger');
 const { startAllClientCrons } = require('./scheduler/cron');
-const { ensureBucket } = require('./storage/minioClient');
+const { ensureStorageBucket } = require('./storage/objectStorageClient');
 const { recoverScheduledPublishes } = require('./queue/recoverScheduledPublishes');
 
 // Import workers to register them
@@ -14,7 +14,7 @@ let recoveryTimer = null;
 
 async function start() {
   logger.info('AutoMonk worker starting');
-  await ensureBucket();
+  await ensureStorageBucket();
   await startAllClientCrons();
   const recoveredCount = await recoverScheduledPublishes();
   logger.info('Scheduled publish recovery complete', { recoveredCount });

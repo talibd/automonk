@@ -3,7 +3,7 @@ const path = require('path');
 const express = require('express');
 const env = require('./config/env');
 const logger = require('./utils/logger');
-const { ensureBucket, getObject, statObject } = require('./storage/minioClient');
+const { ensureStorageBucket, getObject, statObject } = require('./storage/objectStorageClient');
 
 const app = express();
 app.use(express.json({
@@ -80,7 +80,7 @@ app.use((err, req, res, next) => {
 
 // ─── Startup ──────────────────────────────────────────────────────────────────
 async function start() {
-  await ensureBucket();
+  await ensureStorageBucket();
   app.listen(env.port, () => {
     logger.info(`AutoMonk API running on port ${env.port}`, { env: env.node_env });
   });
