@@ -34,6 +34,7 @@ app.use('/api/stats',     require('./routes/stats'));
 app.use('/api/schedules', require('./routes/schedules'));
 app.use('/api/auth',      require('./routes/auth'));
 app.use('/api/nango',     require('./routes/nango'));
+app.use('/api/webhooks',  require('./routes/googleSheetWebhook'));
 app.use('/auth',          require('./routes/oauth'));
 app.use('/connect/token', require('./routes/tokenConnect'));
 app.use('/',              require('./routes/publicPages'));

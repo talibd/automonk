@@ -59,6 +59,10 @@ module.exports = {
     operator_chat_id: process.env.TELEGRAM_OPERATOR_CHAT_ID,
   },
 
+  webhooks: {
+    google_sheet_secret: process.env.GOOGLE_SHEET_WEBHOOK_SECRET || null,
+  },
+
   operator_password: process.env.OPERATOR_PASSWORD,
 
   jwt: {

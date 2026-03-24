@@ -1,3 +1,4 @@
+const axios = require('axios');
 const env = require('../config/env');
 const logger = require('../utils/logger');
 
@@ -17,12 +18,17 @@ function setBotInstance(instance) {
  * @param {string} message
  */
 async function sendAlert(message) {
-  if (!bot) {
-    logger.warn('Bot not initialized, alert not sent', { message });
-    return;
-  }
   try {
-    await bot.telegram.sendMessage(env.telegram.operator_chat_id, message, {
+    if (bot) {
+      await bot.telegram.sendMessage(env.telegram.operator_chat_id, message, {
+        parse_mode: 'HTML',
+      });
+      return;
+    }
+
+    await axios.post(`https://api.telegram.org/bot${env.telegram.bot_token}/sendMessage`, {
+      chat_id: env.telegram.operator_chat_id,
+      text: message,
       parse_mode: 'HTML',
     });
   } catch (err) {
